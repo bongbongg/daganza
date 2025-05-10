@@ -201,27 +201,6 @@
       item.textContent = isBalloon ? '🎈' : '💣';
 
       item.addEventListener('click', () => {
-        if (isBalloon) {
-          balloonSound.currentTime = 0; // Reset suara balon
-          balloonSound.play(); // Mainkan suara balon
-          item.remove();
-          score++;
-          scoreDisplay.textContent = `Balon: ${score} / 5`;
-
-          if (score >= 5) {
-            clearInterval(interval);
-            timerDisplay.textContent = "Selamat! 🎉";
-            linkDana.style.display = 'block';
-          }
-        } else {
-          bombSound.currentTime = 0; // Reset suara bom
-          bombSound.play(); // Mainkan suara bom
-          score--;
-          scoreDisplay.textContent = `Balon: ${score} / 5`;
-        }
-      });
-
-      item.addEventListener('click', () => {
   if (isBalloon) {
     balloonSound.currentTime = 0;
     balloonSound.play();
