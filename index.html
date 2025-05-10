@@ -86,22 +86,22 @@
       overflow: hidden;
     }
 
-    .balloon, .bomb {
-      font-size: 40px;
-      position: absolute;
-      cursor: pointer;
-      animation: float 4s linear forwards;
-    }
+     .balloon, .bomb {
+    font-size: 80px; /* Diperbesar dari 40px ke 80px */
+    position: absolute;
+    cursor: pointer;
+    animation: float 4s linear forwards;
+  }
 
-    .balloon {
-      display: inline-block;
-    }
+  .balloon {
+    display: inline-block;
+  }
 
-    .bomb {
-      display: inline-block;
-      color: red;
-    }
-
+  .bomb {
+    display: inline-block;
+    color: red;
+  }
+  
     @keyframes float {
       0% { bottom: 0; transform: translateX(0); }
       50% { transform: translateX(20px); }
@@ -220,6 +220,28 @@
           scoreDisplay.textContent = `Balon: ${score} / 5`;
         }
       });
+
+      item.addEventListener('click', () => {
+  if (isBalloon) {
+    balloonSound.currentTime = 0;
+    balloonSound.play();
+    item.remove(); // Balon menghilang
+    score++;
+    scoreDisplay.textContent = `Balon: ${score} / 5`;
+
+    if (score >= 5) {
+      clearInterval(interval);
+      timerDisplay.textContent = "Selamat! 🎉";
+      linkDana.style.display = 'block';
+    }
+  } else {
+    bombSound.currentTime = 0;
+    bombSound.play();
+    item.remove(); // BOM juga menghilang saat diklik ✅
+    score--;
+    scoreDisplay.textContent = `Balon: ${score} / 5`;
+  }
+});
 
       gameArea.appendChild(item);
 
