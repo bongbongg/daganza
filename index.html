@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎂 Game Balon Ulang Tahun</title>
+  <title>🎂 Game by @Daganza</title>
   <style>
     * {
       box-sizing: border-box;
@@ -21,14 +21,13 @@
       text-align: center;
     }
 
-    /* Tambahan overlay gelap agar konten utama terlihat jelas */
     .overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.4); /* gelap semi-transparan */
+      background-color: rgba(0, 0, 0, 0.4);
       z-index: 0;
     }
 
@@ -36,7 +35,7 @@
       display: none;
       padding: 20px;
       position: relative;
-      z-index: 1; /* pastikan tampil di atas overlay */
+      z-index: 1;
     }
 
     #home {
@@ -87,14 +86,20 @@
       overflow: hidden;
     }
 
-    .balloon {
-      width: 60px;
-      height: 80px;
-      background-image: url('https://cdn-icons-png.flaticon.com/512/1682/1682807.png');
-      background-size: cover;
+    .balloon, .bomb {
+      font-size: 40px;
       position: absolute;
       cursor: pointer;
-      animation: float 6s linear forwards;
+      animation: float 4s linear forwards;
+    }
+
+    .balloon {
+      display: inline-block;
+    }
+
+    .bomb {
+      display: inline-block;
+      color: red;
     }
 
     @keyframes float {
@@ -127,20 +132,25 @@
 </head>
 <body>
 
-  <!-- Overlay Gelap -->
   <div class="overlay"></div>
 
-  <!-- Musik dan Suara -->
+  <!-- Audio untuk musik background dan efek suara -->
   <audio id="bgMusic" src="bg-music.mp3" autoplay loop></audio>
-  <audio id="popSound" src="pop.mp3"></audio>
+  <audio id="popSound" src="pop.mp3"></audio> <!-- Suara untuk pop -->
+  <audio id="balloonSound" src="balon.mp3"></audio> <!-- Suara untuk klik balon -->
+  <audio id="bombSound" src="bomb.mp3"></audio> <!-- Suara untuk bom -->
+  
+  <!-- Audio untuk musik HBD -->
+  <audio id="hbdMusic" src="hbd.mp3"></audio> <!-- Musik HBD yang akan diputar saat game dimulai -->
 
   <!-- Halaman Utama -->
   <div id="home" class="section">
-    <h1>🎈 Game Balon Ulang Tahun 🎂</h1>
+    <h1>🎈 Game Balon by @Daganza 🎂</h1>
     <div id="instructions">
       <p>🎯 Cara Main:</p>
       <ul style="text-align: left; padding-left: 20px;">
         <li>🖱 Klik balon yang muncul di layar.</li>
+        <li>💣 Hindari bom!</li>
         <li>⏱ Kumpulkan 5 balon dalam 20 detik.</li>
         <li>🎁 Dapatkan Dana Kaget kalau menang!</li>
       </ul>
@@ -155,8 +165,10 @@
     <div id="timer">Waktu: 20 detik</div>
     <div id="gameArea"></div>
     <div id="linkDana" style="display: none;">
-      🎁 <a href="https://link.dana.id/danakaget?c=s5jewcw8b&r=doBD6z" target="_blank">Ambil Dana Kaget 🎉</a>
+      <a href="https://link.dana.id/danakaget?c=s8dfs85tn&r=doBD6z&orderId=20250510101214571515010300166532022197032" target="_blank">Ambil Dana Kaget 🎉</a>
+      <a href="https://t.me/daganza" target="_blank">Join Daganza</a>
     </div>
+    <button id="retryButton" onclick="startGame()" style="display: none;">Ulangi Game 🔄</button>
   </div>
 
   <script>
@@ -167,7 +179,11 @@
     const timerDisplay = document.getElementById('timer');
     const linkDana = document.getElementById('linkDana');
     const highScoreDisplay = document.getElementById('highScore');
+    const retryButton = document.getElementById('retryButton');
     const popSound = document.getElementById('popSound');
+    const balloonSound = document.getElementById('balloonSound'); // Suara balon
+    const bombSound = document.getElementById('bombSound'); // Suara bom
+    const hbdMusic = document.getElementById('hbdMusic'); // Musik HBD
 
     let score = 0;
     let timeLeft = 20;
@@ -176,42 +192,49 @@
 
     highScoreDisplay.textContent = `🏆 Skor Tertinggi: ${highScore}`;
 
-    function spawnBalloon() {
-      const balloon = document.createElement('div');
-      balloon.classList.add('balloon');
-      balloon.style.left = Math.random() * (window.innerWidth - 60) + 'px';
+    function spawnItem() {
+      const isBalloon = Math.random() < 0.6;
+      const item = document.createElement('div');
+      item.classList.add(isBalloon ? 'balloon' : 'bomb');
+      item.style.left = Math.random() * (window.innerWidth - 60) + 'px';
 
-      balloon.addEventListener('click', () => {
-        popSound.currentTime = 0;
-        popSound.play();
-        balloon.remove();
-        score++;
-        scoreDisplay.textContent = `Balon: ${score} / 5`;
+      item.textContent = isBalloon ? '🎈' : '💣';
 
-        if (score >= 5) {
-          clearInterval(interval);
-          timerDisplay.textContent = "Selamat! 🎉";
-          linkDana.style.display = 'block';
-          alert("🎂 Selamat Ulang Tahun! 🎈");
+      item.addEventListener('click', () => {
+        if (isBalloon) {
+          balloonSound.currentTime = 0; // Reset suara balon
+          balloonSound.play(); // Mainkan suara balon
+          item.remove();
+          score++;
+          scoreDisplay.textContent = `Balon: ${score} / 5`;
 
-          if (score > highScore) {
-            highScore = score;
-            localStorage.setItem('highScore', highScore);
-            highScoreDisplay.textContent = `🏆 Skor Tertinggi: ${highScore}`;
+          if (score >= 5) {
+            clearInterval(interval);
+            timerDisplay.textContent = "Selamat! 🎉";
+            linkDana.style.display = 'block';
           }
+        } else {
+          bombSound.currentTime = 0; // Reset suara bom
+          bombSound.play(); // Mainkan suara bom
+          score--;
+          scoreDisplay.textContent = `Balon: ${score} / 5`;
         }
       });
 
-      gameArea.appendChild(balloon);
+      gameArea.appendChild(item);
 
       setTimeout(() => {
-        if (gameArea.contains(balloon)) balloon.remove();
-      }, 6000);
+        if (gameArea.contains(item)) item.remove();
+      }, 4000);
     }
 
     function startGame() {
+      // Play HBD music when game starts
+      hbdMusic.play(); 
+
       homeSection.style.display = 'none';
       gameSection.style.display = 'block';
+      retryButton.style.display = 'none';
 
       score = 0;
       timeLeft = 20;
@@ -221,13 +244,14 @@
 
       interval = setInterval(() => {
         if (timeLeft > 0) {
-          spawnBalloon();
+          spawnItem();
           timeLeft--;
           timerDisplay.textContent = `Waktu: ${timeLeft} detik`;
         } else {
           clearInterval(interval);
           if (score < 5) {
             timerDisplay.textContent = "Waktu Habis! 😢";
+            retryButton.style.display = 'block';  // Hanya tampilkan tombol ulangi jika kalah
           }
         }
       }, 1000);
